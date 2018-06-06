@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet">
+  <script type="text/javascript">
+    if(typeof google)
+      google.charts.load('current', {'packages':['timeline']});
+
+    function drawChart(values) {
+      if(typeof google){
+        values = values.sort(compare);
+        console.log(values);
+        var container = document.getElementById('timeline');
+        var chart = new google.visualization.Timeline(container);
+        var dataTable = new google.visualization.DataTable();
+
+        dataTable.addColumn({ type: 'string', id: 'Node' });
+        dataTable.addColumn({ type: 'string', id: 'Type' });
+        dataTable.addColumn({ type: 'string', role: 'style' });
+        dataTable.addColumn({ type: 'string', role: 'tooltip', 'p': {'html': true} });
+        dataTable.addColumn({ type: 'date', id: 'Start' });
+        dataTable.addColumn({ type: 'date', id: 'End' });
+        
+        values.forEach(function(value){
+          color = (value.type == 'wakeUp') ? '#6ce890' : '#f5eea2';
+          if(value.startTime-value.endTime < 0.001)
+            value.endTime += 0.001
+          dataTable.addRow([ "node"+value.nodeId, value.type, color, getTooltip(value), toDateTime(value.startTime), toDateTime(value.endTime) ]);
+        });
+
+        var rowHeight = 41;
+        var chartHeight = dataTable.getNumberOfRows() * rowHeight + 50;
+
+        var options = {
+          height: chartHeight
+        }
+
+        chart.draw(dataTable, options);
+      }
+    }
+
+    function getTooltip(value){
+      return `
+      <div class="tooltip">
+        <div class="">
+          <div class=""><b>Node ${value.nodeId}</b></div>
+        </div>
+        <div class="">
+          <div>Start: ${value.startTime}</div>
+          <div>End: ${value.endTime}</div>
+        </div>
+      </div>
+      `;
+    }
+
+    function toDateTime(secs) {
+      year = parseInt(secs * 1000);
+      var t = new Date(0,0,0,0,0,0, parseInt(secs*1000*60*24)); // Epoch
+      return t;
+    }
+
+    function updateChart(){
+      dataTable.addRows([[]])
+      chart.draw(dataTable);
+    }
+  </script>
+  <script>
+
+    function compare(a,b) {
+      if (a.nodeId < b.nodeId)
+        return -1;
+      if (a.nodeId > b.nodeId)
+        return 1;
+      return 0;
+    }
+
+    function init(){
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+      $.getJSON($SCRIPT_ROOT+"/_init", function(data){
+        if(data){
+          if(data.nodeCtrl && data.nodeCtrl.length)
+            drawChart(data.nodeCtrl);
+          if(data.nodes)
+            updatesNodes(data.nodes);
+        }
+      });
+    }
+
+    function update_values(go_back) {
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+      $.getJSON($SCRIPT_ROOT+"/_stuff", function(data) {
+          console.log(data);
+          updateTransmission(data.t, data.data)
+          drawChart(data.nodeCtrl);
+          updatesNodes(data.nodes);
+          if(go_back)
+            another_step();
+      });
+    }
+
+    keep_going = true;
+
+    function another_step(){
+      if(keep_going)
+        update_values(1);
+    }
+
+    function start(){
+      keep_going = true;
+      update_values(1);
+    }
+
+    function stop(){
+      keep_going = false;
+    }
+
+    function updatesNodes(nodes){
+      var radar = '<div class="square">';
+      var statsNode = ''
+      nodes = nodes.sort(compare);
+      nodes.forEach(function(node){
+        px = node.x * 200;
+        py = node.y * 200;
+        radar += `
+          <div class="node ${node.status} coll${node.isColliding}" style="left: ${px}px; bottom: ${py}px">
+            <div class="radius">
+            </div>
+            <div class="label">
+              ${node.nodeId}
+            </div>
+            <div class="tooltip">
+              <div>${node.nodeId}: ${node.status} [${node.neighbours}]</div>
+              <div>occupiedUntil ${node.occupiedUntil}</div>
+              <div>colliding ${node.isColliding}</div>
+              <div>queueSize ${node.queueSize}</div>
+            </div>
+          </div>
+        `;
+        perc = node.sendGeneral - node.sendCollision
+        if( perc )
+          perc = perc / node.sendGeneral * 100
+        else
+          perc = 0
+        statsNode += `
+          <tr>
+            <td>${node.nodeId}</td>
+            <td>${node.status}</td>
+            <td>${node.isColliding}</td>
+            <td>${node.sendGeneral}</td>
+            <td>${perc.toFixed(2)}</td>
+            <td>${node.queueSize}</td>
+          </tr>
+        `
+      });
+      radar += '</div class="square">';
+      $('#nodesBox').html(radar);
+      $('#stats').html(statsNode);
+    }
+
+    function updateTransmission(transmission, status){
+      var transmission = `
+        <tr class="">
+          <td class="">${status}</td>
+          <td class="">${transmission.nodeId}</td>
+          <td class="">${transmission.size}</td>
+          <td class="">${transmission.startTime}</td>
+          <td class="">${transmission.endTime}</td>
+        </tr>
+      `;
+      $("#history").prepend(transmission);
+    }
+  </script>
+  <style type="text/css">
+    body{
+      font-family: 'Source Code Pro', monospace;
+      padding: 0;
+      margin: 0;
+    }
+    .tooltip{
+      padding: 1rem;
+    }
+    .monitor{
+      height: 100vh;
+    }
+    .bottom{
+      height: 65vh;
+    }
+    .card{
+      box-shadow: 0 0 20px rgba(0,0,0,.2);
+    }
+    .upper{
+      height: 35vh;
+      display: flex;
+      flex-direction: row;
+    }
+    .left, .right{
+      flex: 1;
+      overflow-y: auto;
+    }
+    .Bgrey{
+      background: rgba(0,0,0,.2);
+    }
+    .command{
+      padding: .5rem;
+    }
+    .square{
+      position: relative;
+      height: 200px;
+      width: 200px;
+      margin: 0 auto;
+      margin-top: 30px;
+      background-color: rgba(0,0,0,.1);
+    }
+    .small{
+      font-size: .6rem;
+      opacity: .7;
+      font-size: uppercase;
+    }
+    .node{
+      position: absolute;
+      height: 4px;
+      width: 4px;
+      margin-top: -2px;
+      margin-left: -2px;
+      background: black;
+      border-radius: 100%;
+      cursor: pointer;
+    }
+    .node.receiving{
+      background: orange;
+    }
+    .node.transmitting{
+      background: green;
+    }
+    .node .radius{
+      display: none;
+    }
+    .node.transmitting .radius{
+      height: 100px;
+      width: 100px;
+      position: absolute;
+      top: -48px;
+      left: -48px;
+      background: green;
+      border-radius: 100%;
+      opacity: .3;
+      display: block;
+      z-index: -1;
+    }
+    .node.coll1{
+      background: red;
+    }
+    .label{
+      position: absolute;
+      top: -1rem;
+      left: -1px;
+      font-size: .7rem;
+    }
+    .node .tooltip{
+      position: absolute;
+      top: .5rem;
+      left: .5rem;
+      background: white;
+      display: none;
+      font-size: .6rem;
+      z-index: 100;
+      min-width: 150px;
+    }
+    .node:hover .tooltip{
+      display: block;
+    }
+    table{
+      width: 100%;
+      cell-spacing: none;
+      font-size: .8rem;
+    }
+    table td{
+      border: 1px solid rgba(0,0,0,.1)
+    }
+    table thead th{
+      text-align: left;
+    }
+  </style>
+</head>
+<body onload="init()">
+  <div class="monitor">
+    <div class="upper card">
+      <div class="left">
+        History:
+        <table class="">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Node</th>
+              <th>Size</th>
+              <th>Start</th>
+              <th>End</th>
+            </tr>
+          </thead>
+          <tbody id="history">
+          </tbody>
+        </table>
+      </div>
+      <div class="right upper">
+        <div id="nodesBox" class="left"></div>
+        <div class="right">
+          <table>
+            <thead>
+              <tr>
+                <th>Node</th>
+                <th>Status</th>
+                <th>Coll</th>
+                <th>Sent</th>
+                <th>Right%</th>
+                <th>qSize</th>
+              </tr>
+            </thead>
+            <tbody id="stats">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <div class="command">
+        <button onclick="update_values(0)">next step</button>
+        <button onclick="start()">start</button>
+        <button onclick="stop()">stop</button>
+      </div>
+      <div id="timeline"></div>
+    </div>
+  </div>
+</body>
+</html>
