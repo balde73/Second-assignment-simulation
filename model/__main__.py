@@ -82,8 +82,7 @@ def compute_matrix(states, rate):
 
 def append_results(l, steady_state):
     # save results in csv
-    output = './model/data/output.csv'
-    os.makedirs(os.path.dirname(output), exist_ok=True)
+    output = 'model.csv'
     with open(output, 'a') as f:
         for index, p in enumerate(steady_state):
             if(index != 0):
@@ -98,7 +97,7 @@ def append_results(l, steady_state):
 
 if __name__ == "__main__":
 
-    output = './model/data/output.csv'
+    output = 'model.csv'
     f = open(output, 'w+')
     f.write('transmitting,holding,state,prob,loosing,rate\n')
     f.close()
@@ -108,7 +107,7 @@ if __name__ == "__main__":
 
     rates = [333.33, 250, 200, 175, 150, 125, 100, 75, 50, 45, 40, 38, 35, 32.5, 30, 27.5, 25, 23.5, 22, 19, 17, 15, 13, 12, 11, 10, 9, 8, 7, 6, 5, 2, 1, 0.5, 0.01]
     #rates = [166.66]
-    for rate in rates:
+    for i, rate in enumerate(rates):
         
         transition_matrix = compute_matrix(states, rate)
         Q = np.ones((N, N + 1))
@@ -120,8 +119,10 @@ if __name__ == "__main__":
         # use lstsq numpy function to solve ax=b, where a is Q transposed, b is a probability vector like [0,0,...,0,1], x is the returned solution
         # solving the equation 4 in the report
         # https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.linalg.lstsq.html
-        steady_state_matrix = np.linalg.lstsq(Q.transpose(), b)
+        steady_state_matrix = np.linalg.lstsq(Q.transpose(), b, rcond=-1)
         append_results(rate, steady_state_matrix[0])
-        print("> ", rate, " done")
 
-print('Finish. Use \'makefile analysis\' to analyze the model')
+        perc_done = int((i+1)/len(rates)*100)
+        print("> ", perc_done , "% \t >", rate)
+
+print('Finish. Use \'make analysis\' to analyze the model')

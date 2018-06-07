@@ -28,11 +28,11 @@ dh.plot_three_line(sim.get_computed_load(),
   [a/b if b else 0 for a,b in zip(sim.get_throughput(), sim.get_computed_load())], "total load (MB/s)", "rate %")
 
 try:
-  with open('./model/data/output.csv', "r") as f:
+  with open('model.csv', "r") as f:
     reader = csv.DictReader( f )
     subsets = dh.split(reader, "rate")
 except:
-  print('oops! no ./model/data/output.csv file found')
+  print('oops! no model.csv file found')
   plt.show()
   exit()
 

@@ -14,6 +14,11 @@ else
 	PYTHON-PIP = pip3
 endif
 
+prepare:
+	sudo apt-get install python3
+	sudo apt-get install python3-tk
+	sudo apt-get install python3-pip
+	
 check_version:
 	@if [ ${NOPYTHON} = false ]; \
 		then ${PYTHON} --version; \
@@ -21,13 +26,11 @@ check_version:
 			echo "Sorry :( THIS PROJECT NEEDS PYTHON3!"; \
 			echo "Your current version: "; \
 			${PYTHON} --version; \
-			echo "> Run 'make prepare' to install python3 and python3-pip!"; \
-			exit 1; \
+			echo "> Running 'make prepare' to install python3, python3-tk and python3-pip for you!"; \
+			make prepare; \
+			make install; \
+			echo "> Trying again . . ."; \
 	fi
-
-prepare:
-	sudo apt-get install python3
-	sudo apt-get install python3-pip
 
 help: check_version
 	@echo "make prepare"
@@ -38,6 +41,8 @@ help: check_version
 	@echo "    start the simulation as in init.py"
 	@echo "make start-fast"
 	@echo "    start a fast simulation (results will be less accurate)"
+	@echo "make start-normal"
+	@echo "    start a default simulation (results can be considerate good)"
 	@echo "make start-slow"
 	@echo "    this is the best simulation (but it is really slow)"
 	@echo "make start-verbose"
@@ -59,19 +64,22 @@ install: check_version
 	${PYTHON-PIP} install -r requirements.txt
 
 start: check_version
-	${PYTHON} main.py -nodb
+	${PYTHON} simulator -nodb
 
 start-fast: check_version
-	${PYTHON} main.py -dt 500 -r 2 -nodb
+	${PYTHON} simulator -dt 1000 -r 5 -nodb
+
+start-normal: check_version
+	${PYTHON} simulator -dt 1000 -r 10 -nodb
 
 start-slow: check_version
-	${PYTHON} main.py -dt 1500 -r 50 -nodb
+	${PYTHON} simulator -dt 1500 -r 50 -nodb
 
 start-verbose: check_version
-	${PYTHON} main.py -vb
+	${PYTHON} simulator -vb
 
 start-debug: check_version
-	${PYTHON} main.py -db
+	${PYTHON} simulator -db
 
 start-beautiful: check_version
 	${PYTHON} main_web.py -nodb
@@ -85,7 +93,7 @@ analysis: check_version
 model: check_version
 	${PYTHON} model
 
-start-all-in-one: check_version start-fast model analysis
+start-all-in-one: check_version start-normal model analysis
 	@echo "done"
 
 .PHONY : all

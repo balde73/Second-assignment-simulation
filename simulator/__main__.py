@@ -21,8 +21,9 @@ def main():
 
 	print("> Inizio simulazione ")
 
-	for gamma in init.GAMMA:
-		print("\b> "+str(gamma)+" ")
+	for i, gamma in enumerate(init.GAMMA):
+		perc_done = int((i+1)/len(init.GAMMA)*100)
+		print("\b> "+str(gamma)+" \t\t "+str(perc_done)+"%")
 		for a in range(0, init.SIMULATION_REPETITION):
 
 			transmission_ctrl = TransmissionController( gamma )
