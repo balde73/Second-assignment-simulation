@@ -10,7 +10,7 @@ DEBUG_COUNT = [
   0
 ]
 
-# (startTime (s), size (bytes)) #
+# (start_time (s), size (bytes)) #
 DEBUG_TRANSMISSION_0 = [
   [
     (0.20, 100000),

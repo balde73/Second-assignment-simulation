@@ -13,23 +13,23 @@ import webbrowser
 
 syms = ['\\', '|', '/', '-']
 bs = '\b'
-fileName = 'stats'
+file_name = 'stats'
 
 number = 0
 
 init.config()
-#statsCtrl = StatsController( fileName )
+#stats_ctrl = StatsController( file_name )
 
-nodeCtrl = NodeController()
-nodeCtrl.createNodes()
-nodeCtrl.findAllNeighbours()
+node_ctrl = NodeController()
+node_ctrl.create_nodes()
+node_ctrl.find_all_neighbours()
 
 print("> Inizio simulazione")
 
 gamma = 0.005
 
-transmissionCtrl = TransmissionController( gamma )
-simulation = Simulator( nodeCtrl, transmissionCtrl, gamma )
+transmission_ctrl = TransmissionController( gamma )
+simulation = Simulator( node_ctrl, transmission_ctrl, gamma )
 simulation.initialize()
 
 webbrowser.open('http://127.0.0.1:5000/', new=0)
@@ -42,27 +42,27 @@ def hello():
 
 @app.route('/_init', methods= ['GET'])
 def init():
-  transmissions = transmissionCtrl.getDictTransmission()
-  nodes = nodeCtrl.getDictNodes()
-  return jsonify(nodeCtrl = transmissions, nodes = nodes)
+  transmissions = transmission_ctrl.get_dict_transmission()
+  nodes = node_ctrl.get_dict_nodes()
+  return jsonify(node_ctrl = transmissions, nodes = nodes)
 
 @app.route('/_stuff', methods= ['GET'])
 def stuff():
   elem = ''
   if(not simulation.finish()):
     elem = simulation.step()
-    nodes = nodeCtrl.getDictNodes()
-    transmissions = transmissionCtrl.getDictTransmission()
+    nodes = node_ctrl.get_dict_nodes()
+    transmissions = transmission_ctrl.get_dict_transmission()
     print(elem)
-    return jsonify(data = elem[0], t = elem[1].as_dict(), nodeCtrl = transmissions, nodes = nodes)
+    return jsonify(data = elem[0], t = elem[1].as_dict(), node_ctrl = transmissions, nodes = nodes, end = 0)
   print("finish")
-  return jsonify(data = {}, t = {}, nodeCtrl = {}, nodes = {})
+  return jsonify(data = {}, t = {}, node_ctrl = {}, nodes = {}, end = 1)
 
 
 @app.route('/_reset', methods= ['GET'])
 def reset():
-  transmissionCtrl = TransmissionController( gamma )
-  simulation = simulationLine( nodeCtrl, transmissionCtrl )
+  transmission_ctrl = TransmissionController( gamma )
+  simulation = simulation_line( node_ctrl, transmission_ctrl )
   simulation.initialize()
 
 if __name__ == "__main__":

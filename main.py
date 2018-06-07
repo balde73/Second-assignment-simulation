@@ -8,16 +8,16 @@ from font import colors
 
 syms = ['\\', '|', '/', '-']
 bs = '\b'
-fileName = 'stats'
+file_name = 'stats'
 
 def main():
 
 	init.config()
-	statsCtrl = StatsController( fileName )
+	stats_ctrl = StatsController( file_name )
 
-	nodeCtrl = NodeController()
-	nodeCtrl.createNodes()
-	nodeCtrl.findAllNeighbours()
+	node_ctrl = NodeController()
+	node_ctrl.create_nodes()
+	node_ctrl.find_all_neighbours()
 
 	print("> Inizio simulazione ")
 
@@ -25,23 +25,23 @@ def main():
 		print("\b> "+str(gamma)+" ")
 		for a in range(0, init.SIMULATION_REPETITION):
 
-			transmissionCtrl = TransmissionController( gamma )
+			transmission_ctrl = TransmissionController( gamma )
 
-			simulation = Simulator( nodeCtrl, transmissionCtrl, gamma )
+			simulation = Simulator( node_ctrl, transmission_ctrl, gamma )
 			simulation.initialize()
 
 			while( not simulation.finish() ):
 				simulation.step()
 
-			statsCtrl.process( nodeCtrl, gamma, a )
-			nodeCtrl.clear();
+			stats_ctrl.process( node_ctrl, gamma, a )
+			node_ctrl.clear();
 
 			sys.stdout.write("\b%s" % syms[ a % len(syms) ])
 			sys.stdout.flush()
 
 	print("\b" + colors.OKGREEN + "Simulazione conclusa" + colors.ENDC)
-	print("Ho creato il file: " + colors.OKGREEN + fileName + ".svg" + colors.ENDC)
-	print("Ho creato il file: " + colors.OKGREEN + fileName + "-nodes.svg" + colors.ENDC)
+	print("Ho creato il file: " + colors.OKGREEN + file_name + ".svg" + colors.ENDC)
+	print("Ho creato il file: " + colors.OKGREEN + file_name + "-nodes.svg" + colors.ENDC)
 
 if __name__ == "__main__":
 	main()

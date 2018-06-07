@@ -11,21 +11,21 @@ except:
   exit()
 
 sim = StatsHandler(subsets)
-sim.computeStats()
+sim.compute_stats()
 
-#plotLine(rate, load, "rate", "avg offered load")
-#plotMultiple(load, nodes_stats, "avg load", "avg offered throughput")
-#plotThroughput(load, throughput)
+#plot_line(rate, load, "rate", "avg offered load")
+#plot_multiple(load, nodes_stats, "avg load", "avg offered throughput")
+#plot_throughput(load, throughput)
 
-dh.plotLine(sim.getRate(), sim.getComputedLoad(), "rate", "total load (MB/s)")
-#plotSpecial(sim.getComputedLoad(), sim.getThroughputNodes())
-dh.plotMultiple(sim.getComputedLoad(), sim.getNodesStats(), "total load (MB/s)", "offered throughput (MB/s)")
-dh.plotLine(sim.getComputedLoad(), sim.getOffered(), "total load (MB/s)", "total offered throughput (MB/s)")
-dh.plotLine(sim.getComputedLoad(), sim.getThroughput(), "total load (MB/s)", "total actual throughput (MB/s)")
-dh.plotThreeLine(sim.getComputedLoad(),
-  [a/b if b else 0 for a,b in zip(sim.getOffered(), sim.getComputedLoad())],
-  [a/b if b else 0 for a,b in zip(sim.getLost(), sim.getComputedLoad())],
-  [a/b if b else 0 for a,b in zip(sim.getThroughput(), sim.getComputedLoad())], "total load (MB/s)", "rate %")
+dh.plot_line(sim.get_rate(), sim.get_computed_load(), "rate", "total load (MB/s)")
+#plot_special(sim.get_computed_load(), sim.get_throughput_nodes())
+dh.plot_multiple(sim.get_computed_load(), sim.get_nodes_stats(), "total load (MB/s)", "offered throughput (MB/s)")
+dh.plot_line(sim.get_computed_load(), sim.get_offered(), "total load (MB/s)", "total offered throughput (MB/s)")
+dh.plot_line(sim.get_computed_load(), sim.get_throughput(), "total load (MB/s)", "total actual throughput (MB/s)")
+dh.plot_three_line(sim.get_computed_load(),
+  [a/b if b else 0 for a,b in zip(sim.get_offered(), sim.get_computed_load())],
+  [a/b if b else 0 for a,b in zip(sim.get_lost(), sim.get_computed_load())],
+  [a/b if b else 0 for a,b in zip(sim.get_throughput(), sim.get_computed_load())], "total load (MB/s)", "rate %")
 
 try:
   with open('./model/data/output.csv', "r") as f:
@@ -41,17 +41,17 @@ m_throughput = []
 m_colliding = []
 
 model = StatsHandler(subsets)
-model.computeSomeStats()
+model.compute_some_stats()
 
-dh.plotCompare(model.getLoad(), model.getThroughput(), sim.getComputedLoad(), sim.getThroughput(), "total load (MB/s)", "total actual throughput (MB/s)")
-dh.plotCompare(model.getLoad(), [a/b if b else 0 for a,b in zip(model.getCollided(), model.getOffered())],
-               sim.getComputedLoad(), [a/b if b else 0 for a,b in zip(sim.getCollided(), sim.getOffered())], "total load (MB/s)", "collision rate %")
-#plotCompare(loads, m_colliding, sim.getComputedLoad(), [x/y for x,y in zip(sim.getCollided(), sim.getComputedLoad())])
-#dh.plotCompare(model.getLoad(), model.getLost(),
-#  sim.getComputedLoad(), [a/b if b else 0 for a,b in zip(sim.getLost(), sim.getComputedLoad())], "", "")
+dh.plot_compare(model.get_load(), model.get_throughput(), sim.get_computed_load(), sim.get_throughput(), "total load (MB/s)", "total actual throughput (MB/s)")
+dh.plot_compare(model.get_load(), [a/b if b else 0 for a,b in zip(model.get_collided(), model.get_offered())],
+               sim.get_computed_load(), [a/b if b else 0 for a,b in zip(sim.get_collided(), sim.get_offered())], "total load (MB/s)", "collision rate %")
+#plot_compare(loads, m_colliding, sim.get_computed_load(), [x/y for x,y in zip(sim.get_collided(), sim.get_computed_load())])
+#dh.plot_compare(model.get_load(), model.get_lost(),
+#  sim.get_computed_load(), [a/b if b else 0 for a,b in zip(sim.get_lost(), sim.get_computed_load())], "", "")
 
-dh.plotCompare(model.getLoad(), [a/b if b else 0 for a,b in zip(model.getThroughput(), model.getLoad())],
-  sim.getComputedLoad(), [a/b if b else 0 for a,b in zip(sim.getThroughput(), sim.getComputedLoad())], "", "")
+dh.plot_compare(model.get_load(), [a/b if b else 0 for a,b in zip(model.get_throughput(), model.get_load())],
+  sim.get_computed_load(), [a/b if b else 0 for a,b in zip(sim.get_throughput(), sim.get_computed_load())], "", "")
 
 
 dh.show()

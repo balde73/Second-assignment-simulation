@@ -34,7 +34,7 @@ class Init(object):
 
 	# dinamic time is an experimental feature that change the MAX_TIME considering the inter-arrival time.
 	# Different max_time for every gamma. Set DYNAMIC_TIME = 1000 means int(gamma * 1000)
-	DYNAMIC_TIME = 1000
+	DYNAMIC_TIME = 0
 
 	# Transmission dimension
 	P = 0.843
@@ -106,6 +106,16 @@ class Init(object):
 							nargs=1,
 							type=int,
 							help="Time (in seconds) at which stop the simulation")
+		parser.add_argument('-dt', '--dynamictime',
+							nargs=1,
+							type=int,
+							help="Dynamic time (in repetition) at which stop the simulation")
+		parser.add_argument('-nodb', '--nodebug',
+							action='store_true',
+							help="Ignore the debug flag")
+		parser.add_argument('-db', '--debug',
+							action='store_true',
+							help="Start a default debug test")
 
 		config = parser.parse_args()
 
@@ -115,12 +125,34 @@ class Init(object):
 			self.SIMULATION_REPETITION = config.repeat[0]
 		if( config.time ):
 			self.MAX_TIME = config.time[0]
+		if( config.dynamictime ):
+			self.DYNAMIC_TIME = config.dynamictime[0]
 		if( config.verbose ):
 			self.VERBOSE = config.verbose
+		if( config.nodebug ):
+			self.DEBUG = not config.nodebug
+		if( config.debug ):
+			self.DEBUG = 1
+			self.MAX_DEBUG_COUNT = 2
+			self.DEBUG_POINTS = test.NODE_3_NEAR_1_2
+			self.DEBUG_TRANSMISSION = test.DEBUG_TRANSMISSION_7
 
-		print(colors.WARNING + "[-] Gamma: " +(' '.join(str(e) for e in self.GAMMA)) + colors.ENDC)
-		print(colors.WARNING + "[-] Repetition for every gamma: " +str(self.SIMULATION_REPETITION) + colors.ENDC)
-		if(not self.DYNAMIC_TIME):
-			print(colors.WARNING + "[-] Time for every repetition: " +str(self.MAX_TIME) + "s" + colors.ENDC)
+		if(self.DEBUG):
+			self.DYNAMIC_TIME = 0
+			self.MAX_TIME = 1000
+			self.GAMMA = [1]
+
+
+		# cleaning GAMMAS
+		self.GAMMA = [round(gamma, 3) for gamma in self.GAMMA]
+
+
+		if(not self.DEBUG):
+			print(colors.WARNING + "[-] Gamma: " +(' '.join(str(e) for e in self.GAMMA)) + colors.ENDC)
+			print(colors.WARNING + "[-] Repetition for every gamma: " +str(self.SIMULATION_REPETITION) + colors.ENDC)
+			if(not self.DYNAMIC_TIME):
+				print(colors.WARNING + "[-] Time for every repetition: " +str(self.MAX_TIME) + "s" + colors.ENDC)
+			else:
+				print(colors.WARNING + "[-] Time dynamic enabled: " +str(self.MAX_TIME)+colors.ENDC)
 		else:
-			print(colors.WARNING + "[-] Time dynamic enabled" + colors.ENDC)
+			print(colors.WARNING + "[-] DEBUG MODE ENABLED! Disable it in the init.py file or using -nodb flag"+colors.ENDC)

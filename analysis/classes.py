@@ -6,91 +6,91 @@ import matplotlib
 import numpy as np
 
 # setting network
-meanPacketSize = binom.mean(n=7111, p=0.843, loc=0) + 32
-convertMegabyte = 0.000001
+mean_packet_size = binom.mean(n=7111, p=0.843, loc=0) + 32
+convert_megabyte = 0.000001
 N = 10
 CAPACITY = 1000000
-maxLoad = CAPACITY * N
+max_load = CAPACITY * N
 
 # setting graphs
 font = {'size'   : 14}
-fontLeg = {'fontsize': 11}
+font_leg = {'fontsize': 11}
 
 matplotlib.rc('font', **font)
-matplotlib.rc('legend', **fontLeg)
+matplotlib.rc('legend', **font_leg)
 
 class StatsHandler(object):
   def __init__(self, data):
     self.subsets = data
     self.rate = []
     self.load = []
-    self.computedLoad = []
+    self.computed_load = []
     self.offered = []
     self.throughput = []
     self.lost = []
     self.collided = []
-    self.throughputNodes = []
+    self.throughput_nodes = []
     self.nodes_stats = []
     self.perc = []
 
-  def getRate(self):
+  def get_rate(self):
     return self.rate
 
-  def getLoad(self): 
+  def get_load(self): 
     return self.load
 
-  def getComputedLoad(self): 
-    return self.computedLoad
+  def get_computed_load(self): 
+    return self.computed_load
 
-  def getOffered(self): 
+  def get_offered(self): 
     return self.offered
 
-  def getThroughput(self): 
+  def get_throughput(self): 
     return self.throughput
 
-  def getLost(self): 
+  def get_lost(self): 
     return self.lost
 
-  def getCollided(self): 
+  def get_collided(self): 
     return self.collided
 
-  def getThroughputNodes(self): 
-    return self.throughputNodes
+  def get_throughput_nodes(self): 
+    return self.throughput_nodes
 
-  def getNodesStats(self): 
+  def get_nodes_stats(self): 
     return self.nodes_stats
 
-  def getPers(self):
+  def get_pers(self):
     return self.perc
 
-  def computeSomeStats(self):
+  def compute_some_stats(self):
     for subset in self.subsets:
       rate = float(subset[0]["rate"])
-      i_load = loadFromRate(rate)
-      self.load.append(i_load*convertMegabyte)
+      i_load = load_from_rate(rate)
+      self.load.append(i_load*convert_megabyte)
 
       # compute packet lost
-      # loosing = splitInt(subset, "loosing")
+      # loosing = split_int(subset, "loosing")
       # loosing_rate = column(loosing[1], "prob")
       # print(loosing_rate)
       # loss = float(np.sum(loosing_rate))
 
       states = split(subset, "state")
-      transmitting_rate = columnFusion(states[0], "prob", "transmitting")
-      colliding_rate = columnFusion(states[1], "prob", "transmitting")
-      offered_rate = columnFusion(subset, "prob", "transmitting")
+      transmitting_rate = column_fusion(states[0], "prob", "transmitting")
+      colliding_rate = column_fusion(states[1], "prob", "transmitting")
+      offered_rate = column_fusion(subset, "prob", "transmitting")
 
       transmitting = float(np.sum(transmitting_rate))
       colliding = float(np.sum(colliding_rate))
       offered = float(np.sum(offered_rate))
 
       total = transmitting + colliding
-      self.throughput.append(transmitting*CAPACITY*convertMegabyte)
-      self.offered.append(offered*CAPACITY*convertMegabyte)
-      self.collided.append(colliding*CAPACITY*convertMegabyte)
+      self.throughput.append(transmitting*CAPACITY*convert_megabyte)
+      self.offered.append(offered*CAPACITY*convert_megabyte)
+      self.collided.append(colliding*CAPACITY*convert_megabyte)
       #self.lost.append(loss)
 
-  def computeStats(self):
+  def compute_stats(self):
     for i,v in enumerate([0] * N):
       self.nodes_stats.append([])
 
@@ -98,46 +98,46 @@ class StatsHandler(object):
 
       # load esperimental parameters
       gamma   = float(subset[0]["gamma"])
-      simTime = float(subset[0]["simTime"])
-      numNodes = int(subset[0]["numNodes"])
+      sim_time = float(subset[0]["sim_time"])
+      num_nodes = int(subset[0]["num_nodes"])
       
-      repetition = countDistinct(subset, "repetition")
+      repetition = count_distinct(subset, "repetition")
 
-      byteOffered = column(subset, "offered")
-      byteSent    = column(subset, "sent")
-      byteLoad    = column(subset, "load")
-      percSuccess = column(subset, "percSuccess")
-      byteLost    = column(subset, "losses")
+      byte_offered = column(subset, "offered")
+      byte_sent    = column(subset, "sent")
+      byte_load    = column(subset, "load")
+      perc_success = column(subset, "perc_success")
+      byte_lost    = column(subset, "losses")
       
-      i_load        = sum(byteLoad)/simTime/repetition*convertMegabyte
-      i_throughput  = sum(byteSent)/simTime/repetition*convertMegabyte
-      i_offered     = sum(byteOffered)/simTime/repetition*convertMegabyte
-      i_lost        = sum(byteLost)/simTime/repetition*convertMegabyte
+      i_load        = sum(byte_load)/sim_time/repetition*convert_megabyte
+      i_throughput  = sum(byte_sent)/sim_time/repetition*convert_megabyte
+      i_offered     = sum(byte_offered)/sim_time/repetition*convert_megabyte
+      i_lost        = sum(byte_lost)/sim_time/repetition*convert_megabyte
       i_collided    = i_offered - i_throughput
-      i_correctP    = avg(percSuccess)
+      i_correct_p    = avg(perc_success)
 
-      i_computedLoad = meanPacketSize / expon.mean(loc=0, scale=gamma) * numNodes * convertMegabyte
+      i_computed_load = mean_packet_size / expon.mean(loc=0, scale=gamma) * num_nodes * convert_megabyte
 
       self.rate.append(1/gamma)
       self.load.append(i_load)
-      self.computedLoad.append(i_computedLoad)
+      self.computed_load.append(i_computed_load)
       self.offered.append(i_offered)
       self.throughput.append(i_throughput)
       self.lost.append(i_lost)
       self.collided.append(i_collided)
-      self.perc.append(i_correctP)
-      self.throughputNodes.append([sent/simTime for sent in byteSent])
+      self.perc.append(i_correct_p)
+      self.throughput_nodes.append([sent/sim_time for sent in byte_sent])
 
-      print(gamma, " - p:", meanPacketSize, " > ", i_load, " = ", i_computedLoad)
+      #print(gamma, " - p:", mean_packet_size, " > ", i_load, " = ", i_computed_load)
 
       # add offered load statistic for every node to undestand network topology behaviour
-      subset_nodes = splitInt(subset, "node")
+      subset_nodes = split_int(subset, "node")
       for n, sub in enumerate(subset_nodes):
-        byteOffered = column(sub, "offered")
-        percSuccess = column(sub, "percSuccess")
+        byte_offered = column(sub, "offered")
+        perc_success = column(sub, "perc_success")
 
-        n_offered = avg(byteOffered)/simTime*convertMegabyte
-        p = avg(percSuccess)
+        n_offered = avg(byte_offered)/sim_time*convert_megabyte
+        p = avg(perc_success)
         self.nodes_stats[n].append(n_offered)
 
 
@@ -153,47 +153,47 @@ def split(data, index):
     subsets[num].append(row);
   return subsets
 
-def splitInt(data, index):
+def split_int(data, index):
   subsets = []
-  cMax = -1
+  c_max = -1
   for row in data:
     num = int(row[index])
-    if(num > cMax):
-      cMax = num
+    if(num > c_max):
+      c_max = num
       subsets.append([])
     subsets[num].append(row);
   return subsets
 
-def columnFusion(data, index, multiplier):
+def column_fusion(data, index, multiplier):
   d = column(data, index)
   m = column(data, multiplier)
   return [a*b for a,b in zip(d,m)]
 
 def column(data, index):
-  columnValues = []
+  column_values = []
   for row in data:
-    columnValues.append(float(row[index]))
-  return columnValues
+    column_values.append(float(row[index]))
+  return column_values
 
-def countDistinct(data, index):
-  columnValues = []
-  oldValue = ""
+def count_distinct(data, index):
+  column_values = []
+  old_value = ""
   count = 0
   for row in data:
     value = float(row[index])
-    if(value != oldValue):
+    if(value != old_value):
       count = count+1
-      oldValue = value
+      old_value = value
   return int(count)
 
 def avg(data):
   return sum(data) / float(len(data))
 
-def sumAvg(data):
-  subdata = splitInt(data, "repetition")
+def sum_avg(data):
+  subdata = split_int(data, "repetition")
   return sum(data)/float(len(subdata))
 
-def plotMultiple(x, data_y, xLabel, yLabel):
+def plot_multiple(x, data_y, x_label, y_label):
   plt.figure()
   label = []
   markers = ["s", "|", "|", "*", "^", "o", "|", "x", "^", "|"]
@@ -205,27 +205,27 @@ def plotMultiple(x, data_y, xLabel, yLabel):
     j = i%len(markers)
     p = plt.plot(x, y, marker=markers[j], markersize=sizes[j], ls=ls[j], label="node"+str(i))
     plots.append(p)
-  plt.xlabel(xLabel)
-  plt.ylabel(yLabel)
+  plt.xlabel(x_label)
+  plt.ylabel(y_label)
 
   plt.legend(loc='best')
 
-def plotCompare(x1, y1, x2, y2, xLabel, yLabel):
+def plot_compare(x1, y1, x2, y2, x_label, y_label):
   plt.figure()
   plt.plot(x1, y1, marker="o", markersize=5, ls="-", label="model")
   plt.plot(x2, y2, marker="s", markersize=5, ls=":", label="simulation")
-  plt.xlabel(xLabel)
-  plt.ylabel(yLabel)
+  plt.xlabel(x_label)
+  plt.ylabel(y_label)
 
   plt.legend(loc='best')
 
-def plotLine(x, y, xLabel, yLabel):
+def plot_line(x, y, x_label, y_label):
   plt.figure()
   plt.plot(x, y, marker='o', markersize=5)
-  plt.xlabel(xLabel)
-  plt.ylabel(yLabel)
+  plt.xlabel(x_label)
+  plt.ylabel(y_label)
 
-def plotThreeLine(x, y1, y2, y3, xLabel, yLabel):
+def plot_three_line(x, y1, y2, y3, x_label, y_label):
   plt.figure()
   
   plt.plot([0, max(x)], [50, 50], color="gray", lw=.5)
@@ -233,12 +233,12 @@ def plotThreeLine(x, y1, y2, y3, xLabel, yLabel):
   p2 = plt.plot(x, [x*100 for x in y2], marker='o', markersize=5, ls='--', color="red", label="lost")
   p3 = plt.plot(x, [x*100 for x in y3], marker='x', markersize=5, ls=':', color="green", label="correctly sended")
 
-  plt.xlabel(xLabel)
-  plt.ylabel(yLabel)
+  plt.xlabel(x_label)
+  plt.ylabel(y_label)
 
   plt.legend(loc='best')
 
-def plotSpecial(x_values, y_values):
+def plot_special(x_values, y_values):
   fig, ax = plt.subplots()
   # i=0
   # for y in y_values:
@@ -262,12 +262,12 @@ def plotSpecial(x_values, y_values):
 
   ax.set_xticklabels(x_labels)
 
-def plotThroughput(load, throughput):
+def plot_throughput(load, throughput):
   x = load
   y = [y/x*100 for x,y in zip(load, throughput) ]
-  plotLine(x, y, 'load', '% throughput')
+  plot_line(x, y, 'load', '% throughput')
 
-def loadFromRate(rate):
+def load_from_rate(rate):
   arrival_time = 1/rate
   return 6026 / arrival_time * 10
 
