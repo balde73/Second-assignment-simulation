@@ -1,15 +1,20 @@
 from classes import NodeController
 from classes import TransmissionController
-from classes import StatsController
 from classes import Simulator
 from classes import Transmission
 import sys
 from init import Init as init
-from font import colors
 
 from flask import render_template, jsonify
 from flask import Flask
 import webbrowser
+
+######### CONFIGURATION #########
+# the gamma value to simulate
+# (inter-arrival-time in seconds)
+gamma = 0.005
+###### END OF CONFIGURATION #####
+
 
 syms = ['\\', '|', '/', '-']
 bs = '\b'
@@ -18,15 +23,12 @@ file_name = 'stats'
 number = 0
 
 init.config()
-#stats_ctrl = StatsController( file_name )
 
 node_ctrl = NodeController()
 node_ctrl.create_nodes()
 node_ctrl.find_all_neighbours()
 
 print("> Inizio simulazione")
-
-gamma = 0.005
 
 transmission_ctrl = TransmissionController( gamma )
 simulation = Simulator( node_ctrl, transmission_ctrl, gamma )

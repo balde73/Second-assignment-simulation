@@ -40,7 +40,7 @@ def main():
 			sys.stdout.write("\b%s" % syms[ a % len(syms) ])
 			sys.stdout.flush()
 
-	print("\b" + colors.OKGREEN + "Simulazione conclusa" + colors.ENDC)
+	print("\b" + colors.OKGREEN + " Simulazione conclusa" + colors.ENDC)
 	print("Ho creato il file: " + colors.OKGREEN + file_name + ".svg" + colors.ENDC)
 	print("Ho creato il file: " + colors.OKGREEN + file_name + "-nodes.svg" + colors.ENDC)
 

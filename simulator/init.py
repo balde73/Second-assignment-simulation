@@ -129,23 +129,21 @@ class Init(object):
 			self.DYNAMIC_TIME = config.dynamictime[0]
 		if( config.verbose ):
 			self.VERBOSE = config.verbose
-		if( config.nodebug ):
-			self.DEBUG = not config.nodebug
 		if( config.debug ):
 			self.DEBUG = 1
 			self.MAX_DEBUG_COUNT = 2
 			self.DEBUG_POINTS = test.NODE_3_NEAR_1_2
 			self.DEBUG_TRANSMISSION = test.DEBUG_TRANSMISSION_7
+		if( config.nodebug ):
+			self.DEBUG = not config.nodebug
 
 		if(self.DEBUG):
 			self.DYNAMIC_TIME = 0
 			self.MAX_TIME = 1000
 			self.GAMMA = [1]
 
-
 		# cleaning GAMMAS
 		self.GAMMA = [round(gamma, 3) for gamma in self.GAMMA]
-
 
 		if(not self.DEBUG):
 			print(colors.WARNING + "[-] Gamma: " +(' '.join(str(e) for e in self.GAMMA)) + colors.ENDC)

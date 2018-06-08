@@ -212,8 +212,8 @@ def plot_multiple(x, data_y, x_label, y_label):
 
 def plot_compare(x1, y1, x2, y2, x_label, y_label):
   plt.figure()
-  plt.plot(x1, y1, marker="o", markersize=5, ls="-", label="model")
-  plt.plot(x2, y2, marker="s", markersize=5, ls=":", label="simulation")
+  plt.plot(x1, y1, marker="o", markersize=5, ls="-", color="black", label="model")
+  plt.plot(x2, y2, marker="s", markersize=5, ls=":", color="gray", label="simulation")
   plt.xlabel(x_label)
   plt.ylabel(y_label)
 
@@ -221,17 +221,18 @@ def plot_compare(x1, y1, x2, y2, x_label, y_label):
 
 def plot_line(x, y, x_label, y_label):
   plt.figure()
-  plt.plot(x, y, marker='o', markersize=5)
+  plt.plot(x, y, marker='o', markersize=5, color="black")
   plt.xlabel(x_label)
   plt.ylabel(y_label)
 
-def plot_three_line(x, y1, y2, y3, x_label, y_label):
+def plot_four_line(x, y1, y2, y3, y4, x_label, y_label):
   plt.figure()
   
   plt.plot([0, max(x)], [50, 50], color="gray", lw=.5)
-  p1 = plt.plot(x, [x*100 for x in y1], marker='o', markersize=5, ls='-', color="orange", label="sended")
-  p2 = plt.plot(x, [x*100 for x in y2], marker='o', markersize=5, ls='--', color="red", label="lost")
-  p3 = plt.plot(x, [x*100 for x in y3], marker='x', markersize=5, ls=':', color="green", label="correctly sended")
+  p1 = plt.plot(x, [x*100 for x in y1], marker='^', markersize=5, ls=':', color="black", label="sended")
+  p2 = plt.plot(x, [x*100 for x in y2], marker='x', markersize=5, ls=':', color="red", label="lost")
+  p3 = plt.plot(x, [x*100 for x in y3], marker='^', markersize=5, ls='-', color="green", label="correct / sended")
+  p4 = plt.plot(x, [x*100 for x in y4], marker='x', markersize=5, ls='-', color="orange", label="collisions / sended")
 
   plt.xlabel(x_label)
   plt.ylabel(y_label)

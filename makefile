@@ -82,10 +82,10 @@ start-debug: check_version
 	${PYTHON} simulator -db
 
 start-beautiful: check_version
-	${PYTHON} main_web.py -nodb
+	${PYTHON} ./simulator/main_interface.py -nodb
 
 start-beautiful-debug: check_version
-	${PYTHON} main_web.py -db
+	${PYTHON} ./simulator/main_interface.py -db
 
 analysis: check_version
 	${PYTHON} analysis
