@@ -14,25 +14,10 @@ else
 	PYTHON-PIP = pip3
 endif
 
-prepare:
-	sudo apt-get install python3
-	sudo apt-get install python3-tk
-	sudo apt-get install python3-pip
-	
-check_version:
-	@if [ ${NOPYTHON} = false ]; \
-		then ${PYTHON} --version; \
-		else \
-			echo "Sorry :( THIS PROJECT NEEDS PYTHON3!"; \
-			echo "Your current version: "; \
-			${PYTHON} --version; \
-			echo "> Running 'make prepare' to install python3, python3-tk and python3-pip for you!"; \
-			make prepare; \
-			make install; \
-			echo "> Trying again . . ."; \
-	fi
+.PHONY : all
+.DEFAULT: help
 
-help: check_version
+help:
 	@echo "make prepare"
 	@echo "    prepare development environment, use only once"
 	@echo "make install"
@@ -59,6 +44,24 @@ help: check_version
 	@echo "    start the analysis of data"
 	@echo "make start-all-in-one"
 	@echo "    start a fast simulation then the model and at the end the analysis of data"
+
+prepare:
+	sudo apt-get install python3
+	sudo apt-get install python3-tk
+	sudo apt-get install python3-pip
+
+check_version:
+	@if [ ${NOPYTHON} = false ]; \
+		then ${PYTHON} --version; \
+		else \
+			echo "Sorry :( THIS PROJECT NEEDS PYTHON3!"; \
+			echo "Your current version: "; \
+			${PYTHON} --version; \
+			echo "> Running 'make prepare' to install python3, python3-tk and python3-pip for you!"; \
+			make prepare; \
+			make install; \
+			echo "> Trying again . . ."; \
+	fi
 
 install: check_version
 	${PYTHON-PIP} install -r requirements.txt
@@ -95,6 +98,3 @@ model: check_version
 
 start-all-in-one: check_version start-normal model analysis
 	@echo "done"
-
-.PHONY : all
-.DEFAULT: help

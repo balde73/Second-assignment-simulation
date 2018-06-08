@@ -7,7 +7,7 @@ N_QUEUE = 5
  
 def compute_states():
     # Generates the Markov Chain as in the report
-    states = [] # [nodes trasmitting:int, nodes holding:int, collision status:bool]
+    states = [] # [nodes trasmitting, nodes holding, collision status]
 
     for i in range(0, N_NODES+1):
         if i == 0:
@@ -116,8 +116,6 @@ if __name__ == "__main__":
         b = [0] * N
         b.append(1)
         # compute the steady state
-        # use lstsq numpy function to solve ax=b, where a is Q transposed, b is a probability vector like [0,0,...,0,1], x is the returned solution
-        # solving the equation 4 in the report
         # https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.linalg.lstsq.html
         steady_state_matrix = np.linalg.lstsq(Q.transpose(), b, rcond=-1)
         append_results(rate, steady_state_matrix[0])

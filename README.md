@@ -2,7 +2,7 @@
 
 ### Prerequisites
 
-This project requires `python3`, `python3-pip` and `python3-tk`. So if they are already installed simply skip this part. Otherwise use the command:
+This project requires `python3`, `python3-pip` and `python3-tk`. So if they are already installed simply skip this part (Tkinter and pip should be shipped with Python out of box). Otherwise use the command:
 
 ```shell
 make prepare
@@ -32,7 +32,7 @@ That simply performs `pip3 install -r requirements.txt`
 
 ### Run
 
-Many option are available to run the project. Type `make help` for a complete list
+Many option are available to run the project. Type `make` or `make help` for a complete list
 
 ```
 > make help
@@ -69,7 +69,7 @@ make start-all-in-one
 
 ### A fast simulation
 
-The fastest way to test the project is by simply run `make start-all-in-one`
+The fastest way to test the full project is by simply run `make start-all-in-one`
 
 This will perform:
 ```shell
